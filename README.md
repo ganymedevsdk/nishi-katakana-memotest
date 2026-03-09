@@ -32,26 +32,6 @@ Un juego de memoria premium para aprender los 46 katakana básicos japoneses. Di
 - **Katakana grandes** con romaji visible para aprendizaje
 - **Récords guardados** por dificultad en localStorage
 
-## Desplegar en Vercel (Gratis)
-
-1. Sube este repo a GitHub
-2. Ve a [vercel.com](https://vercel.com) → **New Project** → importa el repo
-3. Framework Preset: **Other** → Deploy
-
-Sin dependencias, sin npm, sin build. 100% estático.
-
-## Estructura
-
-```
-/
-├── index.html         # Markup completo (3 pantallas)
-├── styles.css         # Estilos premium (washi/sakura/fuji palette)
-├── script.js          # Lógica, audio engine, confetti
-├── assets/
-│   └── logo/
-│       └── logo nishi nihongo gakko.png
-└── README.md
-```
 
 ## Paleta de Colores
 
