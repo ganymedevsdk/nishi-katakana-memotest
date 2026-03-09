@@ -42,13 +42,45 @@ const DIFFICULTIES = {
 
 // ==================== AUDIO ENGINE ====================
 let audioCtx = null;
+let masterGain = null;
 let soundOn = true;
+const MAX_CONCURRENT_SOUNDS = 12;
+const activeSources = new Set();
 
 function ctx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.85;
+    masterGain.connect(audioCtx.destination);
+  }
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+
+// Track and auto-cleanup audio sources to prevent memory leaks
+function trackSource(source) {
+  if (activeSources.size >= MAX_CONCURRENT_SOUNDS) {
+    const oldest = activeSources.values().next().value;
+    try { oldest.stop(); } catch (_) {}
+    activeSources.delete(oldest);
+  }
+  activeSources.add(source);
+  source.onended = () => {
+    try { source.disconnect(); } catch (_) {}
+    activeSources.delete(source);
+  };
+}
+
+// Cleanup audio context on page unload
+window.addEventListener('beforeunload', () => {
+  if (audioCtx) {
+    activeSources.forEach(s => { try { s.stop(); s.disconnect(); } catch (_) {} });
+    activeSources.clear();
+    audioCtx.close();
+    audioCtx = null;
+  }
+});
 
 // Helper: create a simple reverb-like effect using feedback delay
 function addReverb(node, dest, c) {
@@ -95,7 +127,8 @@ function playFurin() {
       g.gain.exponentialRampToValueAtTime(0.001, t0 + 1.6);
 
       osc.connect(g);
-      addReverb(g, c.destination, c);
+      addReverb(g, masterGain, c);
+      trackSource(osc);
 
       osc.start(t0);
       osc.stop(t0 + 1.8);
@@ -140,10 +173,13 @@ function playKoto() {
 
     osc1.connect(filter);
     filter.connect(g1);
-    g1.connect(c.destination);
+    g1.connect(masterGain);
 
     osc2.connect(g2);
-    g2.connect(c.destination);
+    g2.connect(masterGain);
+
+    trackSource(osc1);
+    trackSource(osc2);
 
     osc1.start(now);
     osc1.stop(now + 0.25);
@@ -187,7 +223,8 @@ function playRin() {
       gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
 
       osc.connect(gain);
-      addReverb(gain, c.destination, c);
+      addReverb(gain, masterGain, c);
+      trackSource(osc);
 
       osc.start(now);
       osc.stop(now + dur + 0.2);
@@ -233,9 +270,12 @@ function playHyoshigi() {
 
       osc.connect(filter);
       filter.connect(g1);
-      g1.connect(c.destination);
+      g1.connect(masterGain);
       noise.connect(g2);
-      g2.connect(c.destination);
+      g2.connect(masterGain);
+
+      trackSource(osc);
+      trackSource(noise);
 
       osc.start(t);
       osc.stop(t + 0.1);
@@ -263,7 +303,8 @@ function playMatsuri() {
       g.gain.setValueAtTime(0.25 + i * 0.03, t);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
       osc.connect(g);
-      g.connect(c.destination);
+      g.connect(masterGain);
+      trackSource(osc);
       osc.start(t);
       osc.stop(t + 0.15);
     }
@@ -295,7 +336,8 @@ function playMatsuri() {
       g.gain.exponentialRampToValueAtTime(0.001, t + dur);
 
       osc.connect(g);
-      addReverb(g, c.destination, c);
+      addReverb(g, masterGain, c);
+      trackSource(osc);
       osc.start(t);
       osc.stop(t + dur + 0.3);
     });
@@ -509,6 +551,10 @@ function renderCards() {
         </div>
       </div>`;
 
+    // Staggered entrance animation (spring-animation inspired)
+    div.style.opacity = '0';
+    div.style.transform = 'scale(0.7) translateY(20px)';
+
     div.addEventListener('click', () => onCardClick(i));
     div.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -518,6 +564,27 @@ function renderCards() {
     });
 
     el.grid.appendChild(div);
+
+    // Stagger: each card enters with a slight delay, center-out pattern
+    const cols = Math.floor(el.grid.offsetWidth / 90) || 5;
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const centerCol = (cols - 1) / 2;
+    const centerRow = (Math.ceil(state.cards.length / cols) - 1) / 2;
+    const dist = Math.sqrt((col - centerCol) ** 2 + (row - centerRow) ** 2);
+    const delay = 30 + dist * 35;
+
+    setTimeout(() => {
+      div.style.transition = 'opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      div.style.opacity = '1';
+      div.style.transform = 'scale(1) translateY(0)';
+      // Clean up inline styles after entrance animation completes
+      setTimeout(() => {
+        div.style.transition = '';
+        div.style.opacity = '';
+        div.style.transform = '';
+      }, 550);
+    }, delay);
   });
 }
 

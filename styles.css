@@ -55,12 +55,13 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Zen Maru Gothic', 'Noto Sans JP', 'Kosugi Maru', system-ui, sans-serif;
+  font-family: 'Zen Maru Gothic', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Kosugi Maru', 'Yu Gothic Medium', 'Meiryo', system-ui, sans-serif;
   background: var(--washi);
   min-height: 100vh;
   color: var(--text);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.85;
 }
 
 /* ============================================================
@@ -167,11 +168,12 @@ body {
 
 .title-jp {
   display: block;
-  font-family: 'Kosugi Maru', sans-serif;
+  font-family: 'Kosugi Maru', 'Hiragino Kaku Gothic ProN', sans-serif;
   font-size: clamp(1.8rem, 7vw, 3rem);
   font-weight: 900;
   color: var(--sumi);
   letter-spacing: 0.1em;
+  line-height: 1.9;
   text-shadow:
     1px 1px 0 rgba(201,169,110,0.3),
     2px 2px 4px rgba(42,37,32,0.08);
@@ -211,10 +213,11 @@ body {
 
 .jp-label {
   display: block;
-  font-family: 'Kosugi Maru', sans-serif;
+  font-family: 'Kosugi Maru', 'Hiragino Kaku Gothic ProN', sans-serif;
   font-size: 0.9rem;
   color: var(--sumi-light);
   font-weight: 700;
+  line-height: 1.9;
 }
 
 .es-label {
@@ -478,6 +481,7 @@ body {
 .card:focus-visible {
   outline: 3px solid var(--kinka);
   outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(201,169,110,0.2);
 }
 
 .card-inner {
@@ -508,47 +512,24 @@ body {
   overflow: hidden;
 }
 
-/* ---- BACK = Lacquer frame + Logo ---- */
+/* ---- BACK = Full logo coverage ---- */
 .card-back {
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.2) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(201,169,110,0.15) 0%, transparent 40%),
-    linear-gradient(150deg, var(--sumi) 0%, var(--sumi-light) 35%, var(--nishi-dark) 65%, var(--nishi-teal) 100%);
-  border: 3px solid rgba(201,169,110,0.45);
-  position: relative;
-  box-shadow:
-    inset 0 0 25px rgba(201,169,110,0.1),
-    0 4px 16px rgba(42,37,32,0.3);
-}
-
-/* Inner gold frame */
-.card-back::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border-radius: 8px;
-  border: 1.5px solid rgba(201,169,110,0.35);
-  background: radial-gradient(ellipse at 50% 40%, rgba(201,169,110,0.06) 0%, transparent 70%);
-}
-
-/* Corner ornaments via ::after */
-.card-back::after {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(201,169,110,0.15);
+  background: var(--nishi-dark);
+  border: none;
+  padding: 0;
+  overflow: hidden;
 }
 
 .card-back-logo {
-  width: 88%;
-  height: 88%;
-  object-fit: contain;
-  opacity: 0.92;
-  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
   transition: transform 0.3s var(--flip-ease), opacity 0.2s;
   position: relative;
   z-index: 2;
+  border-radius: var(--card-radius);
 }
 
 .card:hover:not(.flipped):not(.matched) .card-back-logo {
@@ -638,6 +619,13 @@ body {
 
 .card.matched {
   animation: matchBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.card.matched .card-inner {
+  box-shadow:
+    0 0 16px rgba(42,157,143,0.25),
+    var(--sh-soft);
 }
 
 @keyframes matchBounce {
@@ -646,6 +634,12 @@ body {
   50%  { transform: scale(0.96); }
   75%  { transform: scale(1.04); }
   100% { transform: scale(1); }
+}
+
+/* ---- Card back shimmer on hover ---- */
+.card:hover:not(.flipped):not(.matched) .card-back::before {
+  background: radial-gradient(ellipse at 50% 40%, rgba(201,169,110,0.14) 0%, transparent 70%);
+  transition: background 0.3s ease;
 }
 
 /* ---- Wrong ---- */
@@ -719,11 +713,12 @@ body {
 
 .victory-jp {
   display: block;
-  font-family: 'Kosugi Maru', sans-serif;
+  font-family: 'Kosugi Maru', 'Hiragino Kaku Gothic ProN', sans-serif;
   font-size: clamp(1.5rem, 5vw, 2.4rem);
   font-weight: 900;
   color: var(--nishi-rust);
   letter-spacing: 0.04em;
+  line-height: 1.9;
   text-shadow: 1px 1px 0 rgba(201,169,110,0.3);
 }
 
