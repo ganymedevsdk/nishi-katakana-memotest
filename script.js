@@ -1,7 +1,6 @@
 /* ============================================================
-   NISHI KATAKANA MEMOTEST — Premium Game Logic
-   Japanese-authentic sounds · Web Audio API
-   Koto · Rin · Furin · Hyoshigi · Matsuri
+   NISHI KATAKANA MEMOTEST — Sumi-e Okami Premium Game Logic
+   墨絵 · Ink Wash · Divine Brushwork · Zen Audio
    ============================================================ */
 
 'use strict';
@@ -35,9 +34,9 @@ const ALL_KATAKANA = [
 
 // ==================== DIFFICULTY ====================
 const DIFFICULTIES = {
-  easy:   { pairs: 20, jp: '🌸 かんたん', es: 'Fácil' },
-  normal: { pairs: 30, jp: '🏯 ふつう',   es: 'Intermedio' },
-  hard:   { pairs: 46, jp: '🐉 むずかしい', es: 'Experto' },
+  easy:   { pairs: 12, jp: '🌸 かんたん', es: 'Fácil' },
+  normal: { pairs: 18, jp: '🏯 ふつう',   es: 'Intermedio' },
+  hard:   { pairs: 23, jp: '🐉 むずかしい', es: 'Experto' },
 };
 
 // ==================== AUDIO ENGINE ====================
@@ -51,14 +50,13 @@ function ctx() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.85;
+    masterGain.gain.value = 0.7;
     masterGain.connect(audioCtx.destination);
   }
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
 
-// Track and auto-cleanup audio sources to prevent memory leaks
 function trackSource(source) {
   if (activeSources.size >= MAX_CONCURRENT_SOUNDS) {
     const oldest = activeSources.values().next().value;
@@ -72,7 +70,6 @@ function trackSource(source) {
   };
 }
 
-// Cleanup audio context on page unload
 window.addEventListener('beforeunload', () => {
   if (audioCtx) {
     activeSources.forEach(s => { try { s.stop(); s.disconnect(); } catch (_) {} });
@@ -82,7 +79,6 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
-// Helper: create a simple reverb-like effect using feedback delay
 function addReverb(node, dest, c) {
   const dry = c.createGain();
   const wet = c.createGain();
@@ -96,7 +92,6 @@ function addReverb(node, dest, c) {
 
   node.connect(dry);
   dry.connect(dest);
-
   node.connect(delay);
   delay.connect(feedback);
   feedback.connect(delay);
@@ -104,48 +99,39 @@ function addReverb(node, dest, c) {
   wet.connect(dest);
 }
 
-// ---- FURIN (Wind chime) — ethereal glass harmonics ----
+// ---- Furin (Wind chime) ----
 function playFurin() {
   if (!soundOn) return;
   try {
     const c = ctx();
     const now = c.currentTime;
-
-    // Glass-like harmonics: high sine tones with slow decay
-    const freqs = [2637, 3136, 3520, 4186]; // E7, G7, A7, C8
+    const freqs = [2093, 2637, 3136, 3520, 4192];
     freqs.forEach((f, i) => {
       const osc = c.createOscillator();
       const g = c.createGain();
-
       osc.type = 'sine';
       osc.frequency.setValueAtTime(f, now);
-      osc.frequency.exponentialRampToValueAtTime(f * 0.92, now + 1.5);
-
-      const t0 = now + i * 0.06;
+      osc.frequency.exponentialRampToValueAtTime(f * 0.88, now + 2.2);
+      const t0 = now + i * 0.08;
       g.gain.setValueAtTime(0, t0);
-      g.gain.linearRampToValueAtTime(0.06, t0 + 0.005);
-      g.gain.exponentialRampToValueAtTime(0.001, t0 + 1.6);
-
+      g.gain.linearRampToValueAtTime(0.04, t0 + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 2.4);
       osc.connect(g);
       addReverb(g, masterGain, c);
       trackSource(osc);
-
       osc.start(t0);
-      osc.stop(t0 + 1.8);
+      osc.stop(t0 + 2.6);
     });
   } catch (_) {}
 }
 
-// ---- KOTO pluck — card flip sound ----
+// ---- Paper flip / Koto ----
 function playKoto() {
   if (!soundOn) return;
   try {
     const c = ctx();
     const now = c.currentTime;
-
-    // Koto: sharp attack triangle wave + quick decay + subtle second harmonic
-    const fundamental = 600 + Math.random() * 200; // slight variation each flip
-
+    const fundamental = 520 + Math.random() * 150;
     const osc1 = c.createOscillator();
     const osc2 = c.createOscillator();
     const g1 = c.createGain();
@@ -154,196 +140,157 @@ function playKoto() {
 
     osc1.type = 'triangle';
     osc1.frequency.setValueAtTime(fundamental, now);
-    osc1.frequency.exponentialRampToValueAtTime(fundamental * 0.85, now + 0.18);
-
+    osc1.frequency.exponentialRampToValueAtTime(fundamental * 0.75, now + 0.25);
     osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(fundamental * 2, now);
-
+    osc2.frequency.setValueAtTime(fundamental * 1.5, now);
     filter.type = 'bandpass';
-    filter.frequency.value = 1200;
-    filter.Q.value = 2;
-
-    // Sharp pluck envelope
+    filter.frequency.value = 800;
+    filter.Q.value = 1.2;
     g1.gain.setValueAtTime(0, now);
-    g1.gain.linearRampToValueAtTime(0.22, now + 0.003);
-    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-    g2.gain.setValueAtTime(0.08, now);
-    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    g1.gain.linearRampToValueAtTime(0.14, now + 0.008);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    g2.gain.setValueAtTime(0.04, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
     osc1.connect(filter);
     filter.connect(g1);
     g1.connect(masterGain);
-
     osc2.connect(g2);
     g2.connect(masterGain);
-
     trackSource(osc1);
     trackSource(osc2);
-
     osc1.start(now);
-    osc1.stop(now + 0.25);
+    osc1.stop(now + 0.32);
     osc2.start(now);
-    osc2.stop(now + 0.15);
+    osc2.stop(now + 0.22);
   } catch (_) {}
 }
 
-// ---- RIN (Temple bell) — match sound ----
+// ---- Rin (Celestial bell) ----
 function playRin() {
   if (!soundOn) return;
   try {
     const c = ctx();
     const now = c.currentTime;
-
-    // Buddhist bell: fundamental + multiple inharmonic partials with long sustain
     const partials = [
-      { f: 880,  g: 0.14, dur: 2.0 }, // A5 fundamental
-      { f: 1108, g: 0.10, dur: 1.8 }, // C#6
-      { f: 1397, g: 0.07, dur: 1.5 }, // F6 (inharmonic partial — bell characteristic)
-      { f: 1760, g: 0.05, dur: 1.3 }, // A6
-      { f: 2217, g: 0.03, dur: 1.0 }, // C#7
-      { f: 3520, g: 0.015, dur: 0.6 }, // shimmer
+      { f: 880,  g: 0.10, dur: 2.8 },
+      { f: 1108, g: 0.07, dur: 2.5 },
+      { f: 1397, g: 0.05, dur: 2.2 },
+      { f: 1760, g: 0.035, dur: 1.8 },
+      { f: 2217, g: 0.02, dur: 1.4 },
+      { f: 3520, g: 0.008, dur: 1.0 },
     ];
-
     partials.forEach(({ f, g: vol, dur }) => {
       const osc = c.createOscillator();
       const gain = c.createGain();
-
       osc.type = 'sine';
       osc.frequency.setValueAtTime(f, now);
-      // Slight vibrato for warmth
-      osc.frequency.setValueAtTime(f, now + 0.3);
-      osc.frequency.linearRampToValueAtTime(f * 0.999, now + 0.6);
-      osc.frequency.linearRampToValueAtTime(f * 1.001, now + 0.9);
-      osc.frequency.linearRampToValueAtTime(f, now + 1.2);
-
+      osc.frequency.setValueAtTime(f, now + 0.5);
+      osc.frequency.linearRampToValueAtTime(f * 0.997, now + 1.0);
+      osc.frequency.linearRampToValueAtTime(f * 1.002, now + 1.5);
+      osc.frequency.linearRampToValueAtTime(f, now + 2.0);
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(vol, now + 0.008);
-      gain.gain.setValueAtTime(vol * 0.95, now + 0.1);
+      gain.gain.linearRampToValueAtTime(vol, now + 0.015);
+      gain.gain.setValueAtTime(vol * 0.92, now + 0.15);
       gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
       osc.connect(gain);
       addReverb(gain, masterGain, c);
       trackSource(osc);
-
       osc.start(now);
-      osc.stop(now + dur + 0.2);
+      osc.stop(now + dur + 0.3);
     });
   } catch (_) {}
 }
 
-// ---- HYOSHIGI (Wooden clappers) — wrong match ----
+// ---- Hyoshigi (wood tap) ----
 function playHyoshigi() {
   if (!soundOn) return;
   try {
     const c = ctx();
     const now = c.currentTime;
-
-    // Two sharp wood-block hits
     for (let i = 0; i < 2; i++) {
-      const t = now + i * 0.12;
-
+      const t = now + i * 0.15;
       const osc = c.createOscillator();
       const noise = c.createOscillator();
       const g1 = c.createGain();
       const g2 = c.createGain();
       const filter = c.createBiquadFilter();
-
-      // Woody tone
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(420, t);
-      osc.frequency.exponentialRampToValueAtTime(180, t + 0.04);
-
-      filter.type = 'bandpass';
-      filter.frequency.value = 800;
-      filter.Q.value = 5;
-
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(380, t);
+      osc.frequency.exponentialRampToValueAtTime(220, t + 0.06);
+      filter.type = 'lowpass';
+      filter.frequency.value = 600;
+      filter.Q.value = 1;
       g1.gain.setValueAtTime(0, t);
-      g1.gain.linearRampToValueAtTime(0.2, t + 0.002);
-      g1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-
-      // Noise component for wood texture
-      noise.type = 'sawtooth';
-      noise.frequency.value = 200 - i * 40;
-      g2.gain.setValueAtTime(0.12, t);
-      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-
+      g1.gain.linearRampToValueAtTime(0.12, t + 0.005);
+      g1.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      noise.type = 'sine';
+      noise.frequency.value = 180 - i * 30;
+      g2.gain.setValueAtTime(0.05, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
       osc.connect(filter);
       filter.connect(g1);
       g1.connect(masterGain);
       noise.connect(g2);
       g2.connect(masterGain);
-
       trackSource(osc);
       trackSource(noise);
-
       osc.start(t);
-      osc.stop(t + 0.1);
+      osc.stop(t + 0.15);
       noise.start(t);
-      noise.stop(t + 0.05);
+      noise.stop(t + 0.08);
     }
   } catch (_) {}
 }
 
-// ---- MATSURI (Festival fanfare) — victory ----
+// ---- Matsuri (victory fanfare) ----
 function playMatsuri() {
   if (!soundOn) return;
   try {
     const c = ctx();
     const now = c.currentTime;
-
-    // Opening taiko hits
     for (let i = 0; i < 4; i++) {
-      const t = now + i * 0.1;
+      const t = now + i * 0.12;
       const osc = c.createOscillator();
       const g = c.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(80 + i * 15, t);
-      osc.frequency.exponentialRampToValueAtTime(50, t + 0.1);
-      g.gain.setValueAtTime(0.25 + i * 0.03, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.frequency.setValueAtTime(65 + i * 12, t);
+      osc.frequency.exponentialRampToValueAtTime(45, t + 0.15);
+      g.gain.setValueAtTime(0.15 + i * 0.02, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
       osc.connect(g);
       g.connect(masterGain);
       trackSource(osc);
       osc.start(t);
-      osc.stop(t + 0.15);
+      osc.stop(t + 0.22);
     }
-
-    // Japanese pentatonic melody (miyako-bushi: C D♭ F G A♭)
-    // Using a brighter register
     const melody = [
-      { freq: 1046.5, time: 0.45, dur: 0.18 }, // C6
-      { freq: 1108.7, time: 0.63, dur: 0.14 }, // Db6
-      { freq: 1396.9, time: 0.78, dur: 0.18 }, // F6
-      { freq: 1568.0, time: 0.98, dur: 0.22 }, // G6
-      { freq: 1661.2, time: 1.22, dur: 0.20 }, // Ab6
-      { freq: 2093.0, time: 1.45, dur: 0.35 }, // C7 (resolution)
-      { freq: 1568.0, time: 1.82, dur: 0.30 }, // G6 (echo)
-      { freq: 2093.0, time: 2.15, dur: 0.60 }, // C7 (final)
+      { freq: 1046.5, time: 0.55, dur: 0.22 },
+      { freq: 1108.7, time: 0.75, dur: 0.18 },
+      { freq: 1396.9, time: 0.92, dur: 0.22 },
+      { freq: 1568.0, time: 1.12, dur: 0.26 },
+      { freq: 1661.2, time: 1.38, dur: 0.24 },
+      { freq: 2093.0, time: 1.65, dur: 0.45 },
+      { freq: 1568.0, time: 2.10, dur: 0.35 },
+      { freq: 2093.0, time: 2.50, dur: 0.75 },
     ];
-
     melody.forEach(({ freq, time, dur }) => {
       const osc = c.createOscillator();
       const g = c.createGain();
-
       osc.type = 'sine';
       osc.frequency.value = freq;
-
       const t = now + time;
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.16, t + 0.01);
-      g.gain.setValueAtTime(0.14, t + dur * 0.6);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.015);
+      g.gain.setValueAtTime(0.10, t + dur * 0.6);
       g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-
       osc.connect(g);
       addReverb(g, masterGain, c);
       trackSource(osc);
       osc.start(t);
-      osc.stop(t + dur + 0.3);
+      osc.stop(t + dur + 0.4);
     });
-
-    // Final furin shimmer
-    setTimeout(() => playFurin(), 500);
+    setTimeout(() => playFurin(), 600);
   } catch (_) {}
 }
 
@@ -352,24 +299,189 @@ function createSakuraPetals() {
   const field = document.getElementById('sakuraField');
   if (!field) return;
   field.innerHTML = '';
-
-  const count = window.innerWidth < 500 ? 10 : 18;
-
+  const count = window.innerWidth < 500 ? 8 : 14;
   for (let i = 0; i < count; i++) {
-    const petal = document.createElement('div');
-    petal.className = 'petal';
-    petal.style.setProperty('--petal-size', `${12 + Math.random() * 14}px`);
-    petal.style.setProperty('--fall-dur', `${7 + Math.random() * 8}s`);
-    petal.style.setProperty('--fall-delay', `${Math.random() * 10}s`);
-    petal.style.setProperty('--drift-x', `${(Math.random() - 0.5) * 120}px`);
-    petal.style.setProperty('--spin', `${200 + Math.random() * 400}deg`);
-    petal.style.left = `${Math.random() * 100}%`;
-    petal.style.top = `-${10 + Math.random() * 30}px`;
-    field.appendChild(petal);
+    const flower = document.createElement('div');
+    flower.className = 'sakura-flower';
+    flower.style.setProperty('--petal-size', `${22 + Math.random() * 14}px`);
+    flower.style.setProperty('--fall-dur', `${10 + Math.random() * 10}s`);
+    flower.style.setProperty('--fall-delay', `${Math.random() * 12}s`);
+    flower.style.setProperty('--drift-x', `${(Math.random() - 0.5) * 140}px`);
+    flower.style.setProperty('--spin', `${250 + Math.random() * 450}deg`);
+    flower.style.left = `${Math.random() * 100}%`;
+    flower.style.top = `-${15 + Math.random() * 40}px`;
+    for (let p = 0; p < 4; p++) {
+      const petal = document.createElement('span');
+      petal.className = 'petal';
+      flower.appendChild(petal);
+    }
+    const center = document.createElement('span');
+    center.className = 'center';
+    flower.appendChild(center);
+    field.appendChild(flower);
   }
 }
 
-// ==================== CONFETTI (Sakura-style) ====================
+// ==================== INK SPLASH EFFECT (Okami divine brush) ====================
+function createInkSplash(element) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  // Main splash
+  const splash = document.createElement('div');
+  splash.className = 'ink-splash';
+  splash.style.left = cx + 'px';
+  splash.style.top = cy + 'px';
+  splash.style.transform = 'translate(-50%, -50%)';
+  document.body.appendChild(splash);
+  setTimeout(() => splash.remove(), 800);
+
+  // Secondary smaller splashes (ink droplets flying out)
+  for (let i = 0; i < 3; i++) {
+    const droplet = document.createElement('div');
+    droplet.className = 'ink-splash';
+    const angle = (Math.PI * 2 / 3) * i + Math.random() * 0.5;
+    const dist = 20 + Math.random() * 30;
+    droplet.style.left = (cx + Math.cos(angle) * dist) + 'px';
+    droplet.style.top = (cy + Math.sin(angle) * dist) + 'px';
+    droplet.style.transform = 'translate(-50%, -50%) scale(0.5)';
+    droplet.style.animationDelay = (0.05 + i * 0.05) + 's';
+    document.body.appendChild(droplet);
+    setTimeout(() => droplet.remove(), 900);
+  }
+}
+
+// ==================== FLOWING INK PARTICLES (Okami atmosphere) ====================
+let inkParticles = [];
+
+function createInkParticles() {
+  // Remove existing
+  inkParticles.forEach(p => p.remove());
+  inkParticles = [];
+
+  const count = window.innerWidth < 600 ? 6 : 12;
+  const gameScreen = document.getElementById('gameScreen');
+  if (!gameScreen) return;
+
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'ink-particle';
+    particle.style.left = (Math.random() * 100) + '%';
+    particle.style.top = (20 + Math.random() * 60) + '%';
+    particle.style.setProperty('--ink-dur', (6 + Math.random() * 8) + 's');
+    particle.style.setProperty('--ink-delay', (Math.random() * 5) + 's');
+    particle.style.setProperty('--ink-dx', (40 + Math.random() * 80) + 'px');
+    particle.style.setProperty('--ink-dy', (-50 - Math.random() * 100) + 'px');
+    particle.style.setProperty('--ink-dx2', (80 + Math.random() * 120) + 'px');
+    particle.style.setProperty('--ink-dy2', (-100 - Math.random() * 150) + 'px');
+    particle.style.width = (2 + Math.random() * 3) + 'px';
+    particle.style.height = (2 + Math.random() * 3) + 'px';
+    gameScreen.appendChild(particle);
+    inkParticles.push(particle);
+  }
+}
+
+function removeInkParticles() {
+  inkParticles.forEach(p => p.remove());
+  inkParticles = [];
+}
+
+// ==================== INK CANVAS (brush stroke on match) ====================
+let inkCanvasCtx = null;
+
+function initInkCanvas() {
+  const canvas = document.getElementById('inkCanvas');
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  inkCanvasCtx = canvas.getContext('2d');
+}
+
+function drawInkBrushStroke(x, y) {
+  if (!inkCanvasCtx) initInkCanvas();
+  if (!inkCanvasCtx) return;
+
+  const c = inkCanvasCtx;
+  const canvas = c.canvas;
+
+  // Sumi ink brush stroke — Okami style divine line
+  const points = [];
+  const length = 60 + Math.random() * 40;
+  const angle = Math.random() * Math.PI * 2;
+  const steps = 12;
+
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const px = x + Math.cos(angle) * length * (t - 0.5) + (Math.random() - 0.5) * 8;
+    const py = y + Math.sin(angle) * length * (t - 0.5) + (Math.random() - 0.5) * 8;
+    const width = Math.sin(t * Math.PI) * (3 + Math.random() * 2);
+    points.push({ x: px, y: py, w: width });
+  }
+
+  // Draw the brush stroke
+  c.save();
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  c.strokeStyle = 'rgba(42, 157, 143, 0.25)';
+  c.globalCompositeOperation = 'source-over';
+
+  for (let i = 1; i < points.length; i++) {
+    const p0 = points[i - 1];
+    const p1 = points[i];
+    c.beginPath();
+    c.lineWidth = (p0.w + p1.w) / 2;
+    c.moveTo(p0.x, p0.y);
+    c.lineTo(p1.x, p1.y);
+    c.stroke();
+  }
+
+  // Add ink droplets at the end
+  const last = points[points.length - 1];
+  for (let i = 0; i < 3; i++) {
+    c.beginPath();
+    c.fillStyle = `rgba(42, 157, 143, ${0.1 + Math.random() * 0.15})`;
+    c.arc(
+      last.x + (Math.random() - 0.5) * 15,
+      last.y + (Math.random() - 0.5) * 15,
+      1 + Math.random() * 2,
+      0, Math.PI * 2
+    );
+    c.fill();
+  }
+
+  c.restore();
+
+  // Fade out the stroke
+  setTimeout(() => {
+    fadeInkCanvas();
+  }, 1500);
+}
+
+function fadeInkCanvas() {
+  if (!inkCanvasCtx) return;
+  const c = inkCanvasCtx;
+  const canvas = c.canvas;
+  let opacity = 1;
+
+  function fade() {
+    opacity -= 0.05;
+    if (opacity <= 0) {
+      c.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    c.save();
+    c.globalCompositeOperation = 'destination-out';
+    c.fillStyle = `rgba(0, 0, 0, 0.05)`;
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    c.restore();
+    requestAnimationFrame(fade);
+  }
+  fade();
+}
+
+// ==================== CONFETTI (Sakura + Ink style) ====================
 function createSakuraConfetti() {
   const canvas = document.getElementById('confettiCanvas');
   if (!canvas) return;
@@ -377,11 +489,10 @@ function createSakuraConfetti() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // Sakura-inspired colors
-  const colors = ['#f0a0b8', '#d4708f', '#2a9d8f', '#c0451e', '#c9a96e', '#fce4ec', '#6b8db5'];
+  const colors = ['#f0a0b8', '#d4708f', '#2a9d8f', '#c0451e', '#c9a96e', '#fce4ec', '#6b8db5', '#1e1a16'];
   const pieces = [];
 
-  for (let i = 0; i < 140; i++) {
+  for (let i = 0; i < 120; i++) {
     pieces.push({
       x: Math.random() * canvas.width,
       y: -15 - Math.random() * 120,
@@ -393,8 +504,8 @@ function createSakuraConfetti() {
       spin: (Math.random() - 0.5) * 0.25,
       wobble: Math.random() * Math.PI * 2,
       wobbleSpeed: 0.04 + Math.random() * 0.08,
-      // Some pieces are petal-shaped (round)
-      isPetal: Math.random() > 0.5,
+      isPetal: Math.random() > 0.4,
+      isInk: Math.random() > 0.8,
     });
   }
 
@@ -406,7 +517,6 @@ function createSakuraConfetti() {
     pieces.forEach(p => {
       if (p.y > canvas.height + 30) return;
       alive = true;
-
       p.y += p.speed;
       p.x += Math.sin(p.wobble) * 1.2;
       p.wobble += p.wobbleSpeed;
@@ -417,8 +527,18 @@ function createSakuraConfetti() {
       c2d.rotate(p.angle);
       c2d.fillStyle = p.color;
 
-      if (p.isPetal) {
-        // Petal shape
+      if (p.isInk) {
+        // Ink splatter dot
+        c2d.beginPath();
+        c2d.arc(0, 0, p.w * 0.4, 0, Math.PI * 2);
+        c2d.fill();
+        // Ink drip
+        c2d.beginPath();
+        c2d.moveTo(0, p.w * 0.4);
+        c2d.lineTo(-1, p.w * 1.2);
+        c2d.lineTo(1, p.w * 1.2);
+        c2d.fill();
+      } else if (p.isPetal) {
         c2d.beginPath();
         c2d.moveTo(0, -p.h);
         c2d.quadraticCurveTo(p.w, -p.h * 0.5, 0, p.h);
@@ -437,7 +557,6 @@ function createSakuraConfetti() {
   }
 
   draw();
-
   setTimeout(() => {
     cancelAnimationFrame(raf);
     c2d.clearRect(0, 0, canvas.width, canvas.height);
@@ -489,6 +608,13 @@ function showScreen(name) {
     scr.classList.toggle('hidden', !active);
     scr.setAttribute('aria-hidden', String(!active));
   });
+
+  if (name === 'game') {
+    createInkParticles();
+    initInkCanvas();
+  } else {
+    removeInkParticles();
+  }
 }
 
 // ==================== GAME INIT ====================
@@ -511,7 +637,8 @@ function startGame(diff) {
   el.diffPill.textContent = cfg.jp;
   updateBestDisplay();
 
-  const pool = ALL_KATAKANA.slice(0, cfg.pairs);
+  const shuffledAll = shuffle([...ALL_KATAKANA]);
+  const pool = shuffledAll.slice(0, cfg.pairs);
   state.cards = shuffle(
     pool.flatMap((item, pid) => [
       { ...item, pairId: pid, uid: `${pid}a` },
@@ -540,7 +667,7 @@ function renderCards() {
       <div class="card-inner">
         <div class="card-face card-back">
           <img class="card-back-logo"
-               src="assets/logo/logo nishi nihongo gakko.png"
+               src="assets/logo/nishi-logo.png"
                alt=""
                loading="lazy"
                draggable="false">
@@ -551,9 +678,9 @@ function renderCards() {
         </div>
       </div>`;
 
-    // Staggered entrance animation (spring-animation inspired)
+    // Staggered entrance
     div.style.opacity = '0';
-    div.style.transform = 'scale(0.7) translateY(20px)';
+    div.style.transform = 'scale(0.6) translateY(20px)';
 
     div.addEventListener('click', () => onCardClick(i));
     div.addEventListener('keydown', e => {
@@ -565,8 +692,8 @@ function renderCards() {
 
     el.grid.appendChild(div);
 
-    // Stagger: each card enters with a slight delay, center-out pattern
-    const cols = Math.floor(el.grid.offsetWidth / 90) || 5;
+    // Center-out stagger pattern
+    const cols = Math.floor(el.grid.offsetWidth / 75) || 5;
     const row = Math.floor(i / cols);
     const col = i % cols;
     const centerCol = (cols - 1) / 2;
@@ -575,10 +702,9 @@ function renderCards() {
     const delay = 30 + dist * 35;
 
     setTimeout(() => {
-      div.style.transition = 'opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      div.style.transition = 'opacity 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
       div.style.opacity = '1';
       div.style.transform = 'scale(1) translateY(0)';
-      // Clean up inline styles after entrance animation completes
       setTimeout(() => {
         div.style.transition = '';
         div.style.opacity = '';
@@ -599,7 +725,7 @@ function onCardClick(i) {
     state.timerInterval = setInterval(tickTimer, 200);
   }
 
-  ctx(); // ensure audio unlocked
+  ctx();
   flipCard(i, true);
   playKoto();
 
@@ -627,7 +753,7 @@ function evaluate() {
   const cB = state.cards[b];
 
   if (cA.pairId === cB.pairId) {
-    // MATCH
+    // MATCH — Okami divine moment
     playRin();
     state.matched.add(cA.pairId);
     state.flipped = [];
@@ -638,6 +764,17 @@ function evaluate() {
     elB.classList.add('matched');
     elA.setAttribute('aria-label', `${cA.kana} — ペア！`);
     elB.setAttribute('aria-label', `${cB.kana} — ペア！`);
+
+    // Ink splash effects
+    createInkSplash(elA);
+    createInkSplash(elB);
+
+    // Ink brush stroke on canvas
+    const rectA = elA.getBoundingClientRect();
+    const rectB = elB.getBoundingClientRect();
+    const midX = (rectA.left + rectA.width / 2 + rectB.left + rectB.width / 2) / 2;
+    const midY = (rectA.top + rectA.height / 2 + rectB.top + rectB.height / 2) / 2;
+    drawInkBrushStroke(midX, midY);
 
     el.pairsFound.textContent = state.matched.size;
 
@@ -775,16 +912,27 @@ document.addEventListener('keydown', e => {
       showScreen('splash');
     }
   }
-  // Prevent scroll on space when focused on card
   if (e.key === ' ' && e.target.classList.contains('card')) {
     e.preventDefault();
   }
 });
 
-// Resize canvas
+// Resize handling
 window.addEventListener('resize', () => {
   const cv = document.getElementById('confettiCanvas');
   if (cv) { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  const inkCv = document.getElementById('inkCanvas');
+  if (inkCv) { inkCv.width = window.innerWidth; inkCv.height = window.innerHeight; }
+});
+
+// Orientation change — refresh ink particles
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    if (!screens.game.classList.contains('hidden')) {
+      createInkParticles();
+      initInkCanvas();
+    }
+  }, 300);
 });
 
 // ==================== BOOT ====================
