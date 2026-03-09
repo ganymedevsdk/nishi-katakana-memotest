@@ -44,3 +44,4 @@ CLAUDE.md
 # Node/Vercel (optional but good practice)
 node_modules/
 .vercel/
+.vercel
