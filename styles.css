@@ -1,0 +1,893 @@
+/* ============================================================
+   NISHI KATAKANA MEMOTEST — Premium Styles
+   Washi · Sakura · Fuji · Earthy Japanese palette
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ---- Logo-inspired core ---- */
+  --nishi-teal:    #2a9d8f;
+  --nishi-dark:    #1a5c5a;
+  --nishi-rust:    #c0451e;
+
+  /* ---- Sakura ---- */
+  --sakura:        #f0a0b8;
+  --sakura-soft:   #fce4ec;
+  --sakura-deep:   #d4708f;
+
+  /* ---- Fuji / Sky ---- */
+  --fuji-blue:     #6b8db5;
+  --fuji-snow:     #e8f0f8;
+
+  /* ---- Earth / Washi ---- */
+  --washi:         #f5efe3;
+  --washi-warm:    #ede4d3;
+  --bamboo:        #9b8b6e;
+  --bamboo-light:  #c4b896;
+  --sumi:          #2c2c2c;
+
+  /* ---- Gold ---- */
+  --kinka:         #c9a96e;
+
+  /* ---- Semantic ---- */
+  --text:          #3a3226;
+  --text-soft:     #7a7062;
+  --white:         #ffffff;
+
+  /* ---- Card ---- */
+  --card-radius:   14px;
+  --flip-dur:      0.65s;
+  --flip-ease:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Shadows ---- */
+  --sh-soft:       0 4px 16px rgba(42,60,50,0.12);
+  --sh-hover:      0 10px 32px rgba(42,60,50,0.22);
+  --sh-glow:       0 0 24px rgba(42,157,143,0.4);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Zen Maru Gothic', 'Noto Sans JP', 'Kosugi Maru', system-ui, sans-serif;
+  background: var(--washi);
+  min-height: 100vh;
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   SCREEN SYSTEM
+   ============================================================ */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97) translateY(12px);
+}
+
+/* ============================================================
+   SPLASH SCREEN
+   ============================================================ */
+
+.splash-screen {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(240,160,184,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(107,141,181,0.12) 0%, transparent 50%),
+    linear-gradient(170deg, #f8f2e8 0%, #f0e8da 40%, #e8e2d4 100%);
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+/* ---- Sakura petals ---- */
+.sakura-field {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  width: var(--petal-size, 18px);
+  height: var(--petal-size, 18px);
+  background: radial-gradient(ellipse at 40% 30%, #fff 20%, var(--sakura) 60%, var(--sakura-deep) 100%);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0;
+  will-change: transform;
+  animation: petalDrift var(--fall-dur, 9s) var(--fall-delay, 0s) linear infinite;
+  filter: blur(0.5px);
+}
+
+@keyframes petalDrift {
+  0% {
+    opacity: 0;
+    transform: translate(0, -30px) rotate(0deg) scale(0.8);
+  }
+  8% { opacity: 0.85; }
+  85% { opacity: 0.7; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift-x, 60px), calc(100vh + 40px)) rotate(var(--spin, 420deg)) scale(0.6);
+  }
+}
+
+/* ---- Splash content ---- */
+.splash-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: fadeUp 0.8s var(--flip-ease) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.logo-wrap {
+  animation: gentleFloat 4s ease-in-out infinite;
+}
+
+.main-logo {
+  width: clamp(110px, 28vw, 170px);
+  height: clamp(110px, 28vw, 170px);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 6px 28px rgba(42,60,50,0.2),
+    0 0 0 4px rgba(255,255,255,0.85),
+    0 0 0 8px rgba(42,157,143,0.15);
+}
+
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.splash-title {
+  text-align: center;
+}
+
+.title-jp {
+  display: block;
+  font-family: 'Kosugi Maru', 'Zen Maru Gothic', sans-serif;
+  font-size: clamp(1.9rem, 7vw, 3.2rem);
+  font-weight: 900;
+  color: var(--nishi-dark);
+  letter-spacing: 0.08em;
+  text-shadow: 2px 2px 0 rgba(42,157,143,0.08);
+}
+
+.title-sub {
+  display: block;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  color: var(--sakura-deep);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.splash-school {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  letter-spacing: 0.12em;
+  margin-top: -8px;
+}
+
+/* ---- Level select ---- */
+.level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  margin-top: 8px;
+}
+
+.level-prompt {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.jp-label {
+  display: block;
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 0.95rem;
+  color: var(--nishi-dark);
+  font-weight: 700;
+}
+
+.es-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.btn-level {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: var(--white);
+  border: 2.5px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: var(--sh-soft);
+  transition: all 0.3s var(--flip-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-level::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(240,160,184,0.08), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.55s ease;
+}
+
+.btn-level:hover::before { transform: translateX(100%); }
+
+.btn-level:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--sh-hover);
+  border-color: var(--sakura);
+}
+
+.btn-level:active { transform: scale(0.97); }
+
+.level-icon {
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--nishi-teal), var(--nishi-dark));
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.level-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.level-name-jp {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.level-name-es {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+.level-count {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--nishi-teal);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.level-count small {
+  font-size: 0.65rem;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+.splash-hint {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.splash-hint .jp-label {
+  font-size: 0.82rem;
+  color: var(--bamboo);
+}
+
+.splash-hint .es-label {
+  font-size: 0.72rem;
+}
+
+/* ============================================================
+   GAME SCREEN
+   ============================================================ */
+
+.game-screen {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(107,141,181,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #f2ece2 0%, #ebe5d8 100%);
+}
+
+/* ---- Header ---- */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--nishi-dark) 0%, var(--nishi-teal) 100%);
+  box-shadow: 0 4px 18px rgba(26,92,90,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.btn-icon-round {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.14);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-icon-round:hover { background: rgba(255,255,255,0.25); transform: scale(1.06); }
+.btn-icon-round:active { transform: scale(0.94); }
+.btn-icon-round svg { width: 22px; height: 22px; }
+
+/* Sound toggle state */
+.btn-sound .icon-sound-off { display: none; }
+.btn-sound.muted .icon-sound-on { display: none; }
+.btn-sound.muted .icon-sound-off { display: block; }
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.header-title {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+}
+
+.difficulty-pill {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.14);
+  padding: 2px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ---- Stats bar ---- */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(245,239,227,0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(155,139,110,0.15);
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(42,60,50,0.08);
+  border: 1.5px solid rgba(155,139,110,0.12);
+}
+
+.stat-emoji { font-size: 1.15rem; }
+
+.stat-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label-jp {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 0.6rem;
+  color: var(--text-soft);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.stat-val {
+  font-family: 'Kosugi Maru', monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--nishi-dark);
+  line-height: 1.15;
+}
+
+.stat-best .stat-val { font-size: 0.85rem; }
+
+/* ---- Game board ---- */
+.game-board {
+  flex: 1;
+  padding: 16px 12px 28px;
+  overflow-y: auto;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 10px;
+  max-width: 860px;
+  margin: 0 auto;
+  justify-items: center;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+  width: 100%;
+  aspect-ratio: 3/4;
+  perspective: 1000px;
+  cursor: pointer;
+  border-radius: var(--card-radius);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s var(--flip-ease);
+}
+
+.card:hover:not(.flipped):not(.matched) {
+  transform: scale(1.08) rotateY(4deg);
+}
+
+.card:hover:not(.flipped):not(.matched) .card-inner {
+  box-shadow: 
+    0 0 25px rgba(42,157,143,0.35),
+    0 12px 36px rgba(42,60,50,0.25);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--kinka);
+  outline-offset: 3px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--flip-dur) var(--flip-ease);
+  border-radius: var(--card-radius);
+  will-change: transform;
+  box-shadow: var(--sh-soft);
+}
+
+.card.flipped .card-inner,
+.card.matched .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ---- Card BACK = Logo face ---- */
+.card-back {
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(255,255,255,0.15) 0%, transparent 40%),
+    linear-gradient(150deg, var(--nishi-dark) 0%, var(--nishi-teal) 45%, #3dbdaf 75%, #5de0cf 100%);
+  border: 3px solid rgba(255,255,255,0.35);
+  position: relative;
+  box-shadow: 
+    inset 0 0 30px rgba(255,255,255,0.08),
+    0 4px 20px rgba(26,92,90,0.3);
+}
+
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+}
+
+.card-back-logo {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  opacity: 0.95;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25));
+  transition: transform 0.35s var(--flip-ease), opacity 0.3s ease;
+}
+
+.card:hover:not(.flipped):not(.matched) .card-back-logo {
+  transform: scale(1.05);
+}
+
+/* ---- Card FRONT = Katakana face ---- */
+.card-front {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(240,160,184,0.06) 0%, transparent 70%),
+    linear-gradient(170deg, #fffcf7 0%, #f8f3ea 100%);
+  border: 3px solid rgba(155,139,110,0.2);
+  transform: rotateY(180deg);
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-kana {
+  font-family: 'Kosugi Maru', 'Noto Sans JP', sans-serif;
+  font-size: clamp(2.8rem, 8vw, 4rem);
+  font-weight: 900;
+  color: var(--nishi-dark);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 
+    2px 2px 0 rgba(42,157,143,0.12),
+    0 2px 8px rgba(26,92,90,0.15);
+}
+
+.card-romaji {
+  font-size: clamp(0.95rem, 2.5vw, 1.35rem);
+  color: var(--bamboo);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+/* ---- Matched state ---- */
+.card.matched .card-front {
+  background: linear-gradient(135deg, #e2f5f0 0%, #d0ede6 100%);
+  border-color: var(--nishi-teal);
+}
+
+.card.matched .card-kana {
+  color: var(--nishi-teal);
+}
+
+.card.matched {
+  animation: matchBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes matchBounce {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.18); }
+  50%  { transform: scale(0.95); }
+  75%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* ---- Wrong state ---- */
+.card.wrong {
+  animation: wrongShake 0.45s ease;
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  15%      { transform: translateX(-6px) rotate(-1deg); }
+  30%      { transform: translateX(6px) rotate(1deg); }
+  45%      { transform: translateX(-5px); }
+  60%      { transform: translateX(5px); }
+  75%      { transform: translateX(-3px); }
+}
+
+/* ============================================================
+   VICTORY SCREEN
+   ============================================================ */
+
+.victory-screen {
+  background:
+    radial-gradient(ellipse at 40% 30%, rgba(240,160,184,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 70%, rgba(201,169,110,0.1) 0%, transparent 50%),
+    linear-gradient(160deg, #f8f2e8 0%, #ede6d8 100%);
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.victory-content {
+  position: relative;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: victoryPop 0.7s var(--flip-ease) both;
+}
+
+@keyframes victoryPop {
+  0%   { opacity: 0; transform: scale(0.75); }
+  55%  { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.victory-logo-wrap {
+  animation: gentleFloat 3.5s ease-in-out infinite;
+}
+
+.victory-logo-img {
+  width: clamp(90px, 22vw, 130px);
+  height: clamp(90px, 22vw, 130px);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 6px 28px rgba(192,69,30,0.25),
+    0 0 0 4px rgba(255,255,255,0.9);
+}
+
+.victory-heading {
+  text-align: center;
+}
+
+.victory-jp {
+  display: block;
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: clamp(1.6rem, 5.5vw, 2.6rem);
+  font-weight: 900;
+  color: var(--nishi-rust);
+  letter-spacing: 0.04em;
+}
+
+.victory-es {
+  display: block;
+  font-size: 1rem;
+  color: var(--text-soft);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.victory-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.v-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--white);
+  padding: 14px 20px;
+  border-radius: 16px;
+  box-shadow: var(--sh-soft);
+  border: 1.5px solid rgba(155,139,110,0.12);
+  min-width: 90px;
+}
+
+.v-stat-val {
+  font-family: 'Kosugi Maru', monospace;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--nishi-dark);
+}
+
+.v-stat-label {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  text-align: center;
+  line-height: 1.35;
+  margin-top: 4px;
+}
+
+.v-stat-label small {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.62rem;
+}
+
+.victory-best-msg {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 0.88rem;
+  color: var(--nishi-rust);
+  font-weight: 700;
+  min-height: 1.3em;
+  text-align: center;
+}
+
+.victory-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 260px;
+  margin-top: 6px;
+}
+
+.btn-victory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s var(--flip-ease);
+  border: none;
+}
+
+.btn-victory .jp-label {
+  font-family: 'Kosugi Maru', sans-serif;
+  font-size: 1rem;
+}
+
+.btn-victory .es-label {
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--nishi-teal), var(--nishi-dark));
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(42,157,143,0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(42,157,143,0.5);
+}
+
+.btn-outline {
+  background: var(--white);
+  color: var(--nishi-dark);
+  border: 2px solid var(--nishi-teal);
+}
+
+.btn-outline:hover {
+  background: rgba(42,157,143,0.04);
+  transform: translateY(-2px);
+}
+
+.btn-victory:active { transform: scale(0.96); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 400px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+
+  .stat-pill { padding: 6px 10px; }
+  .stats-bar { gap: 5px; padding: 10px 10px; }
+  .stat-best { display: none; }
+}
+
+@media (min-width: 401px) and (max-width: 540px) {
+  .cards-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 9px;
+  }
+}
+
+@media (min-width: 541px) and (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+    max-width: 950px;
+  }
+
+  .level-select {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 680px;
+    gap: 14px;
+  }
+
+  .level-prompt { width: 100%; }
+
+  .btn-level {
+    flex: 1;
+    min-width: 180px;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 16px;
+    gap: 10px;
+  }
+
+  .level-info { align-items: center; }
+
+  .stat-pill { padding: 10px 20px; min-width: 110px; }
+
+  .card-kana { font-size: 2.8rem; }
+  .card-romaji { font-size: 0.9rem; }
+}
+
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 18px;
+    max-width: 1060px;
+  }
+
+  .card-kana { font-size: 3.2rem; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --flip-dur: 0.01ms; }
+
+  .petal,
+  .logo-wrap,
+  .victory-logo-wrap {
+    animation: none !important;
+  }
+
+  .splash-content,
+  .victory-content {
+    animation: none !important;
+  }
+
+  .card { transition: none; }
+  .card.matched { animation: none; }
+  .card.wrong { animation: none; }
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(155,139,110,0.3); border-radius: 3px; }
+
+::selection { background: rgba(240,160,184,0.3); color: var(--nishi-dark); }

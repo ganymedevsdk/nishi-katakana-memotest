@@ -1,0 +1,46 @@
+# Agent skills and configurations
+.agent/
+.agents/
+.claude/
+.augment/
+.codebuddy/
+.commandcode/
+.continue/
+.cortex/
+.crush/
+.cursor/
+.droid/
+.gemini/
+.github/copilot/
+.goose/
+.junie/
+.iflow/
+.kilo/
+.kimi/
+.kiro/
+.kode/
+.mcpjam/
+.mistral-vibe/
+.mux/
+.opencode/
+.openhands/
+.pi/
+.qoder/
+.qwen-code/
+.replit/
+.roo/
+.trae/
+.windsurf/
+.zencoder/
+.neovate/
+.pochi/
+.adal/
+skills/
+skills-lock.json
+
+# Tool specific
+CLAUDE.md
+
+# Node/Vercel (optional but good practice)
+node_modules/
+.vercel/

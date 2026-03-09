@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カタカナ MemoTest – Nishi Nihongo Gakko</title>
+  <meta name="description" content="Aprende los 46 katakana japoneses con este juego de memoria premium. 3 niveles de dificultad con sonidos tradicionales japoneses.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Kosugi+Maru&family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================== SPLASH / MENU ==================== -->
+  <section class="screen splash-screen" id="splashScreen" aria-hidden="false">
+
+    <!-- Sakura petals background -->
+    <div class="sakura-field" id="sakuraField" aria-hidden="true"></div>
+
+    <div class="splash-content">
+      <div class="logo-wrap">
+        <img src="assets/logo/logo nishi nihongo gakko.png" alt="Nishi Nihongo Gakko" class="main-logo">
+      </div>
+
+      <h1 class="splash-title">
+        <span class="title-jp">カタカナ メモテスト</span>
+        <span class="title-sub">Katakana Memory Game</span>
+      </h1>
+
+      <p class="splash-school">西 日本語 学校 — Nishi Nihongo Gakko</p>
+
+      <nav class="level-select" aria-label="Selección de nivel">
+        <p class="level-prompt">
+          <span class="jp-label">レベルを えらんでください</span>
+          <span class="es-label">Elige tu nivel</span>
+        </p>
+
+        <button class="btn-level" data-difficulty="easy">
+          <span class="level-icon">🌸</span>
+          <span class="level-info">
+            <span class="level-name-jp">かんたん</span>
+            <span class="level-name-es">Fácil</span>
+          </span>
+          <span class="level-count">20 ペア<br><small>pares</small></span>
+        </button>
+
+        <button class="btn-level" data-difficulty="normal">
+          <span class="level-icon">🏯</span>
+          <span class="level-info">
+            <span class="level-name-jp">ふつう</span>
+            <span class="level-name-es">Intermedio</span>
+          </span>
+          <span class="level-count">30 ペア<br><small>pares</small></span>
+        </button>
+
+        <button class="btn-level" data-difficulty="hard">
+          <span class="level-icon">🐉</span>
+          <span class="level-info">
+            <span class="level-name-jp">むずかしい</span>
+            <span class="level-name-es">Experto</span>
+          </span>
+          <span class="level-count">46 ペア<br><small>pares</small></span>
+        </button>
+      </nav>
+
+      <p class="splash-hint">
+        <span class="jp-label">カードを めくって ペアを さがそう！</span>
+        <span class="es-label">Voltea las cartas y encuentra los pares</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== GAME SCREEN ==================== -->
+  <section class="screen game-screen hidden" id="gameScreen" aria-hidden="true">
+
+    <header class="game-header">
+      <button class="btn-icon-round btn-back" id="btnBack" aria-label="Volver al menú / メニューに もどる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <div class="header-center">
+        <span class="header-title">カタカナ メモテスト</span>
+        <span class="difficulty-pill" id="difficultyPill">🌸 かんたん</span>
+      </div>
+
+      <button class="btn-icon-round btn-sound" id="btnSound" aria-label="おと / Sonido">
+        <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <line x1="23" y1="9" x2="17" y2="15"/>
+          <line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <span class="stat-emoji">⏱</span>
+        <span class="stat-data">
+          <span class="stat-label-jp">じかん</span>
+          <span class="stat-val" id="timer">00:00</span>
+        </span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-emoji">🃏</span>
+        <span class="stat-data">
+          <span class="stat-label-jp">て</span>
+          <span class="stat-val" id="moves">0</span>
+        </span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-emoji">✓</span>
+        <span class="stat-data">
+          <span class="stat-label-jp">ペア</span>
+          <span class="stat-val"><span id="pairsFound">0</span>/<span id="pairsTotal">20</span></span>
+        </span>
+      </div>
+      <div class="stat-pill stat-best">
+        <span class="stat-emoji">🏆</span>
+        <span class="stat-data">
+          <span class="stat-label-jp">きろく</span>
+          <span class="stat-val" id="bestDisplay">—</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Board -->
+    <main class="game-board">
+      <div class="cards-grid" id="cardsGrid" role="list"></div>
+    </main>
+  </section>
+
+  <!-- ==================== VICTORY SCREEN ==================== -->
+  <section class="screen victory-screen hidden" id="victoryScreen" aria-hidden="true">
+    <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
+
+    <div class="victory-content">
+      <div class="victory-logo-wrap">
+        <img src="assets/logo/logo nishi nihongo gakko.png" alt="Nishi" class="victory-logo-img">
+      </div>
+
+      <h2 class="victory-heading">
+        <span class="victory-jp">おめでとう ございます！</span>
+        <span class="victory-es">Completaste el nivel</span>
+      </h2>
+
+      <div class="victory-stats">
+        <div class="v-stat">
+          <span class="v-stat-val" id="finalTime">00:00</span>
+          <span class="v-stat-label">じかん<br><small>Tiempo</small></span>
+        </div>
+        <div class="v-stat">
+          <span class="v-stat-val" id="finalMoves">0</span>
+          <span class="v-stat-label">て<br><small>Movimientos</small></span>
+        </div>
+        <div class="v-stat">
+          <span class="v-stat-val" id="finalPairs">0</span>
+          <span class="v-stat-label">ペア<br><small>Parejas</small></span>
+        </div>
+      </div>
+
+      <p class="victory-best-msg" id="victoryBestMsg"></p>
+
+      <div class="victory-btns">
+        <button class="btn-victory btn-primary" id="btnPlayAgain">
+          <span class="jp-label">もう いちど</span>
+          <span class="es-label">Jugar de nuevo</span>
+        </button>
+        <button class="btn-victory btn-outline" id="btnMenu">
+          <span class="jp-label">メニュー</span>
+          <span class="es-label">Menú principal</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
